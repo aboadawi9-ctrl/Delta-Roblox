@@ -10,6 +10,7 @@
             --primary-green: #00ff88;
             --bg-black: #080808;
             --card-gray: #121212;
+            --youtube-red: #ff0000;
         }
 
         body {
@@ -81,17 +82,15 @@
             box-sizing: border-box;
         }
 
-        .follow-btn {
-            background-color: #ffffff;
-            color: #000000;
-        }
-        .follow-btn:hover { background-color: #e0e0e0; }
+        .follow-btn-tiktok { background-color: #ffffff; color: #000000; }
+        .follow-btn-youtube { background-color: var(--youtube-red); color: #ffffff; }
 
         .download-btn {
             background-color: #222;
             color: #444;
             cursor: not-allowed;
             pointer-events: none;
+            margin-top: 20px;
         }
 
         .active {
@@ -102,10 +101,26 @@
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
         }
 
+        .waiting {
+            background: #ffaa00 !important;
+            color: #000 !important;
+        }
+
+        .done {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
         .status-msg {
-            font-size: 0.8rem;
-            color: #555;
-            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        #timer {
+            color: var(--primary-green);
+            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -113,57 +128,92 @@
 
 <div class="container">
     <div class="title">هاك <span>روبلوكس</span></div>
-    <code class="file-info">Delta-v2.704.apk</code>
+    <code class="file-info">Delta-2.704.1060-02.apk</code>
 
     <div class="instruction">
-        لفتح رابط التحميل المباشر، يجب عليك أولاً متابعة الحساب الرسمي على تيك توك.
+        يرجى التأكد من عمل المتابعة للحسابات <br>وانتظار دقيقة للتحقق من النظام.
     </div>
 
     <a href="https://www.tiktok.com/@ai_visino?_r=1&_t=ZS-93WsWYb5Han" 
        target="_blank" 
-       class="btn follow-btn" 
-       id="followBtn">
-        <i class="fab fa-tiktok"></i> متابعة الحساب (خطوة 1)
+       class="btn follow-btn-tiktok" 
+       id="tiktokBtn">
+        <i class="fab fa-tiktok"></i> متابعة تيك توك
     </a>
 
-    <a href="#" download id="downloadBtn" class="btn download-btn">
+    <a href="https://www.youtube.com/@Gp12_Gp20" 
+       target="_blank" 
+       class="btn follow-btn-youtube" 
+       id="youtubeBtn">
+        <i class="fab fa-youtube"></i> اشتراك يوتيوب
+    </a>
+
+    <a href="Delta-2.704.1060-02.apk" download id="downloadBtn" class="btn download-btn">
         <i class="fas fa-lock" id="lockIcon"></i> 
-        <span id="btnText">تحميل الهاك (مغلق)</span>
+        <span id="btnText">يتم التحقق...</span>
     </a>
 
-    <div class="status-msg" id="status">الوضع: غير مفعل</div>
+    <div class="status-msg" id="status">أتمم الخطوات أعلاه أولاً</div>
+    <div id="timerDisplay" style="display:none; margin-top:10px;">سيفتح الرابط بعد: <span id="timer">60</span> ثانية</div>
 </div>
 
 <script>
-    // الرابط مشفر بصيغة طلاسم (Base64)
-    const _0x5a1e = "aHR0cHM6Ly9naXRodWIuY29tL2Fib2FkYXdpOS1jdHJsL0RlbHRhLVJvYmxveC9yZWxlYXNlcy9kb3dubG9hZC9WMS4wL0RlbHRhLTIuNzA0LjEwNjAtMDIuYXBr";
-
-    const followBtn = document.getElementById('followBtn');
+    const tiktokBtn = document.getElementById('tiktokBtn');
+    const youtubeBtn = document.getElementById('youtubeBtn');
     const downloadBtn = document.getElementById('downloadBtn');
     const btnText = document.getElementById('btnText');
     const lockIcon = document.getElementById('lockIcon');
     const status = document.getElementById('status');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerText = document.getElementById('timer');
 
-    followBtn.addEventListener('click', () => {
-        status.innerText = "جاري التحقق من المتابعة...";
-        
-        let counter = 4;
-        const countdown = setInterval(() => {
-            btnText.innerText = `انتظر ${counter} ثانية...`;
-            counter--;
-            if (counter < 0) {
-                clearInterval(countdown);
-                
-                // هنا يتم فك التشفير ووضع الرابط الحقيقي في اللحظة الأخيرة
-                downloadBtn.href = atob(_0x5a1e);
-                
-                downloadBtn.classList.add('active');
-                lockIcon.className = "fas fa-download";
-                btnText.innerText = "تحميل APK الآن";
-                status.innerText = "تم التحقق! الرابط متاح الآن.";
-                status.style.color = "#00ff88";
-            }
-        }, 1000);
+    let tiktokDone = false;
+    let youtubeDone = false;
+    let timerStarted = false;
+    let timeLeft = 60; // عدد الثواني (دقيقة)
+
+    function startTimer() {
+        if (tiktokDone && youtubeDone && !timerStarted) {
+            timerStarted = true;
+            timerDisplay.style.display = "block";
+            status.innerText = "يرجى التأكد من عمل المتابعة خلال هذا الوقت..";
+            downloadBtn.classList.add('waiting');
+            btnText.innerText = "جاري التحقق من المتابعة...";
+
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerText.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    activateDownload();
+                }
+            }, 1000);
+        }
+    }
+
+    function activateDownload() {
+        downloadBtn.classList.remove('waiting');
+        downloadBtn.classList.add('active');
+        lockIcon.className = "fas fa-download";
+        btnText.innerText = "تحميل الهاك الآن";
+        status.innerText = "تم التحقق! يمكنك التحميل الآن.";
+        status.style.color = "#00ff88";
+        timerDisplay.style.display = "none";
+    }
+
+    tiktokBtn.addEventListener('click', () => {
+        tiktokDone = true;
+        tiktokBtn.classList.add('done');
+        tiktokBtn.innerHTML += " ✓";
+        startTimer();
+    });
+
+    youtubeBtn.addEventListener('click', () => {
+        youtubeDone = true;
+        youtubeBtn.classList.add('done');
+        youtubeBtn.innerHTML += " ✓";
+        startTimer();
     });
 </script>
 
