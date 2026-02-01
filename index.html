@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>هاك روبلوكس | تحميل دلتا</title>
+    <title>تحميل دلتا | Roblox</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-green: #00ff88;
+            --yt-red: #ff0000;
             --bg-black: #080808;
             --card-gray: #121212;
-            --youtube-red: #ff0000;
         }
 
         body {
@@ -48,7 +48,7 @@
         .file-info {
             font-size: 0.8rem;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             display: block;
             background: rgba(255,255,255,0.05);
             padding: 5px;
@@ -82,15 +82,16 @@
             box-sizing: border-box;
         }
 
-        .follow-btn-tiktok { background-color: #ffffff; color: #000000; }
-        .follow-btn-youtube { background-color: var(--youtube-red); color: #ffffff; }
+        .follow-btn { background-color: #ffffff; color: #000000; }
+        .youtube-btn { background-color: var(--yt-red); color: white; }
+        
+        .follow-btn:hover, .youtube-btn:hover { opacity: 0.8; }
 
         .download-btn {
             background-color: #222;
             color: #444;
             cursor: not-allowed;
             pointer-events: none;
-            margin-top: 20px;
         }
 
         .active {
@@ -101,120 +102,153 @@
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
         }
 
-        .waiting {
-            background: #ffaa00 !important;
-            color: #000 !important;
+        .done {
+            background-color: #1a1a1a !important;
+            color: #00ff88 !important;
+            pointer-events: none;
+            border: 1px solid #333;
         }
 
-        .done {
-            opacity: 0.6;
+        .waiting {
+            background-color: #333 !important;
+            color: #aaa !important;
             pointer-events: none;
+            cursor: wait;
         }
 
         .status-msg {
             font-size: 0.9rem;
-            color: #aaa;
+            color: #888;
             margin-top: 15px;
-            font-weight: bold;
         }
 
-        #timer {
-            color: var(--primary-green);
-            font-size: 1.2rem;
+        #progress-container {
+            width: 100%;
+            background-color: #222;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 5px;
+            background-color: var(--primary-green);
+            border-radius: 5px;
+            transition: width 1s linear;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="title">هاك <span>روبلوكس</span></div>
-    <code class="file-info">Delta-2.704.1060-02.apk</code>
+    <div class="title">Delta <span>Executor</span></div>
+    <code class="file-info">Delta-v2.704.apk</code>
 
     <div class="instruction">
-        يرجى التأكد من عمل المتابعة للحسابات <br>وانتظار دقيقة للتحقق من النظام.
+        أكمل المهام وانتظر التحقق لفتح الرابط.
     </div>
 
-    <a href="https://www.tiktok.com/@ai_visino?_r=1&_t=ZS-93WsWYb5Han" 
-       target="_blank" 
-       class="btn follow-btn-tiktok" 
-       id="tiktokBtn">
-        <i class="fab fa-tiktok"></i> متابعة تيك توك
+    <a href="https://www.tiktok.com/@ai_visino?_r=1&_t=ZS-93WsWYb5Han" target="_blank" class="btn follow-btn" id="step1">
+        <i class="fab fa-tiktok"></i> متابعة تيك توك (1)
     </a>
 
-    <a href="https://www.youtube.com/@Gp12_Gp20" 
-       target="_blank" 
-       class="btn follow-btn-youtube" 
-       id="youtubeBtn">
-        <i class="fab fa-youtube"></i> اشتراك يوتيوب
+    <a href="http://www.youtube.com/@Gp12_Gp20" target="_blank" class="btn youtube-btn" id="step2">
+        <i class="fab fa-youtube"></i> متابعة يوتيوب (2)
     </a>
 
-    <a href="Delta-2.704.1060-02.apk" download id="downloadBtn" class="btn download-btn">
+    <a href="#" download id="downloadBtn" class="btn download-btn">
         <i class="fas fa-lock" id="lockIcon"></i> 
-        <span id="btnText">يتم التحقق...</span>
+        <span id="btnText">تحميل APK (مغلق)</span>
     </a>
 
-    <div class="status-msg" id="status">أتمم الخطوات أعلاه أولاً</div>
-    <div id="timerDisplay" style="display:none; margin-top:10px;">سيفتح الرابط بعد: <span id="timer">60</span> ثانية</div>
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+    <div class="status-msg" id="status">يجب إتمام الخطوات أولاً</div>
 </div>
 
 <script>
-    const tiktokBtn = document.getElementById('tiktokBtn');
-    const youtubeBtn = document.getElementById('youtubeBtn');
+    const linkEncoded = "aHR0cHM6Ly9naXRodWIuY29tL2Fib2FkYXdpOS1jdHJsL0RlbHRhLVJvYmxveC9yZWxlYXNlcy9kb3dubG9hZC9WMS4wL0RlbHRhLTIuNzA0LjEwNjAtMDIuYXBr";
+
+    let step1Done = false;
+    let step2Done = false;
+    let isGlobalWaiting = false;
+
+    const btn1 = document.getElementById('step1');
+    const btn2 = document.getElementById('step2');
     const downloadBtn = document.getElementById('downloadBtn');
+    const status = document.getElementById('status');
     const btnText = document.getElementById('btnText');
     const lockIcon = document.getElementById('lockIcon');
-    const status = document.getElementById('status');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const timerText = document.getElementById('timer');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
 
-    let tiktokDone = false;
-    let youtubeDone = false;
-    let timerStarted = false;
-    let timeLeft = 60; // عدد الثواني (دقيقة)
+    // دالة المعالجة لكل زر
+    function handleStep(button, stepNumber) {
+        button.classList.add('waiting');
+        let seconds = 30;
+        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> جاري التحقق (${seconds}ث)`;
 
-    function startTimer() {
-        if (tiktokDone && youtubeDone && !timerStarted) {
-            timerStarted = true;
-            timerDisplay.style.display = "block";
-            status.innerText = "يرجى التأكد من عمل المتابعة خلال هذا الوقت..";
-            downloadBtn.classList.add('waiting');
-            btnText.innerText = "جاري التحقق من المتابعة...";
+        const timer = setInterval(() => {
+            seconds--;
+            button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> جاري التحقق (${seconds}ث)`;
+            
+            if (seconds <= 0) {
+                clearInterval(timer);
+                button.classList.remove('waiting');
+                button.classList.add('done');
+                button.innerHTML = `<i class="fas fa-check"></i> تمت الخطوة ${stepNumber}`;
+                
+                if (stepNumber === 1) step1Done = true;
+                if (stepNumber === 2) step2Done = true;
+                
+                checkFinalProgress();
+            }
+        }, 1000);
+    }
 
+    btn1.addEventListener('click', function() {
+        if (!this.classList.contains('waiting') && !step1Done) {
+            handleStep(this, 1);
+        }
+    });
+
+    btn2.addEventListener('click', function() {
+        if (!this.classList.contains('waiting') && !step2Done) {
+            handleStep(this, 2);
+        }
+    });
+
+    function checkFinalProgress() {
+        if (step1Done && step2Done && !isGlobalWaiting) {
+            isGlobalWaiting = true;
+            status.innerText = "تم التحقق من المهام! جاري فك القفل...";
+            progressContainer.style.display = 'block';
+            
+            let timeLeft = 60; // دقيقة انتظار إضافية قبل التحميل كما طلبت سابقاً
             const countdown = setInterval(() => {
                 timeLeft--;
-                timerText.innerText = timeLeft;
+                let progressWidth = ((60 - timeLeft) / 60) * 100;
+                progressBar.style.width = progressWidth + "%";
+                btnText.innerText = `يفتح الرابط خلال ${timeLeft} ثانية...`;
 
                 if (timeLeft <= 0) {
                     clearInterval(countdown);
-                    activateDownload();
+                    unlockDownload();
                 }
             }, 1000);
         }
     }
 
-    function activateDownload() {
-        downloadBtn.classList.remove('waiting');
+    function unlockDownload() {
+        downloadBtn.href = atob(linkEncoded);
         downloadBtn.classList.add('active');
         lockIcon.className = "fas fa-download";
-        btnText.innerText = "تحميل الهاك الآن";
-        status.innerText = "تم التحقق! يمكنك التحميل الآن.";
+        btnText.innerText = "تحميل APK الآن";
+        status.innerText = "تم القبول! الرابط متاح الآن.";
         status.style.color = "#00ff88";
-        timerDisplay.style.display = "none";
+        progressContainer.style.display = 'none';
     }
-
-    tiktokBtn.addEventListener('click', () => {
-        tiktokDone = true;
-        tiktokBtn.classList.add('done');
-        tiktokBtn.innerHTML += " ✓";
-        startTimer();
-    });
-
-    youtubeBtn.addEventListener('click', () => {
-        youtubeDone = true;
-        youtubeBtn.classList.add('done');
-        youtubeBtn.innerHTML += " ✓";
-        startTimer();
-    });
 </script>
 
 </body>
