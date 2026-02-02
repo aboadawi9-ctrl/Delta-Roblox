@@ -152,7 +152,7 @@
         <i class="fab fa-tiktok"></i> متابعة تيك توك (1)
     </a>
 
-    <a href="http://www.youtube.com/@Gp12_Gp20" target="_blank" class="btn youtube-btn" id="step2">
+    <a href="https://www.youtube.com/@ai_visino" target="_blank" class="btn youtube-btn" id="step2">
         <i class="fab fa-youtube"></i> متابعة يوتيوب (2)
     </a>
 
@@ -183,7 +183,6 @@
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
 
-    // دالة المعالجة لكل زر
     function handleStep(button, stepNumber) {
         button.classList.add('waiting');
         let seconds = 30;
@@ -225,7 +224,7 @@
             status.innerText = "تم التحقق من المهام! جاري فك القفل...";
             progressContainer.style.display = 'block';
             
-            let timeLeft = 60; // دقيقة انتظار إضافية قبل التحميل كما طلبت سابقاً
+            let timeLeft = 60; 
             const countdown = setInterval(() => {
                 timeLeft--;
                 let progressWidth = ((60 - timeLeft) / 60) * 100;
